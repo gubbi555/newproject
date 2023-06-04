@@ -1,15 +1,10 @@
-# Pull base image
-FROM debian:latest
+FROM centos
 
-# Dockerfile Maintainer
-MAINTAINER Jan Wagner "waja@cyconet.org"
+RUN mkdir /opt/tomcat/
 
-# Install nginx and adjust nginx config to stay in foreground
-RUN apt-get update && apt-get install --no-install-recommends -y nginx; \
- echo "daemon off;" >> /etc/nginx/nginx.conf
-
-# Expose HTTP
-EXPOSE 80
-
-# Start nginx
-CMD ["/usr/sbin/nginx"]
+WORKDIR /opt/tomcat
+RUN curl -O https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.75/bin/apache-tomcat-9.0.75.tar.gz
+RUN tar xvzf apache*.tar.gz
+RUN mv apache-tomcat-9.0.75/* /opt/tomcat/
+EXPOSE 8080
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
