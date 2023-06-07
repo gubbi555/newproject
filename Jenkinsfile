@@ -14,7 +14,7 @@ pipeline {
                 sh "docker build -t tomcat:latest . "
             }
         }
-        stage ('login') {
+        stage ('login to dockerhub') {
             steps {
                 sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
                 sh 'docker tag tomcat:latest prakashmk/tomcat:latest'
