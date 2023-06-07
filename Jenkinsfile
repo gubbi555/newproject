@@ -1,5 +1,8 @@
 pipeline {
     agent any
+    tools {
+        maven 'Maven'
+    }
     environment {
         DOCKERHUB_CREDENTIALS=credentials('dockerhub_id')
     }
@@ -9,9 +12,15 @@ pipeline {
                 git branch: 'main', url: 'https://github.com/gubbi555/newproject.git'
             }
         }
+        stage('maven') {
+            steps {
+                sh 'mvn package'
+            }
+        }
         stage('docker build') {
             steps {
                 sh "docker build -t tomcat:latest . "
+                sh "docker run -d -p 8090:8080 tomcat:latest sh
             }
         }
         stage ('login to dockerhub') {
