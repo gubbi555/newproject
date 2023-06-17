@@ -20,7 +20,7 @@ pipeline {
         stage('docker build') {
             steps {
                 sh "docker build -t tomcat:latest . "
-                sh "docker run -t -d -p 8090:8080 --name pk tomcat:latest sh"
+                sh "docker run -t -d -p 8090:8080 --name pk1 tomcat:latest sh"
             }
         }
         stage ('login to dockerhub') {
