@@ -20,7 +20,7 @@ pipeline {
         stage('docker build') {
             steps {
                 sh "docker build -t tomcat:latest . "
-                sh "docker run -t -d -p 8090:8080 tomcat:latest sh"
+                sh "docker run -t -d -p 8091:8080 tomcat:latest sh"
             }
         }
         stage ('login to dockerhub') {
