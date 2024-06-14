@@ -8,4 +8,4 @@ RUN tar xvzf apache*.tar.gz
 RUN mv apache-tomcat-9.0.89/* /opt/tomcat/
 ADD ./target/simpleweb.war /opt/tomcat/webapps/
 EXPOSE 8080
-CMD ["catalina.sh", "run"]
+CMD ["/opt/tomcat/bin/catalina.sh", "run"]
