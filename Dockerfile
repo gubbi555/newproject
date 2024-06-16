@@ -1,11 +1,12 @@
-FROM centos
+# Use an official Tomcat base image
+FROM tomcat:9.0.53-jdk11-openjdk
 
-RUN mkdir /opt/tomcat/
 
-WORKDIR /opt/tomcat
-RUN curl -O https://dlcdn.apache.org/tomcat/tomcat-9/v9.0.89/bin/apache-tomcat-9.0.89.tar.gz
-RUN tar xvzf apache*.tar.gz
-RUN mv apache-tomcat-9.0.89/* /opt/tomcat/
-ADD ./target/simpleweb.war /opt/tomcat/webapps/
+# Copy the WAR file from the host to the webapps directory in Tomcat
+COPY target/simpleweb.war /opt/tomcat/webapps/
+
+# Expose the Tomcat port
 EXPOSE 8080
-CMD ["/opt/tomcat/bin/catalina.sh", "run"]
+
+# Start Tomcat
+CMD ["catalina.sh", "run"]
