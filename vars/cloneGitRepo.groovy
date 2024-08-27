@@ -1,7 +1,4 @@
 // vars/cloneGitRepo.groovy
-def call(String repoUrl, String branch = 'main') {
-    checkout([$class: 'GitSCM',
-              branches: [[name: "*/${branch}"]],
-              userRemoteConfigs: [[url: repoUrl]]
-    ])
+def call() {
+    git branch: 'main', url: 'https://github.com/gubbi555/newproject.git'
 }
