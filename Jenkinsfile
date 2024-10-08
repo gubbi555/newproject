@@ -1,33 +1,23 @@
 pipeline {
     agent any
-    tools {
-        maven 'Maven'
-    }
-    environment {
-        DOCKERHUB_CREDENTIALS=credentials('dockerhub_id')
-    }
     stages {
-        stage('cloning git') {
+        stage ('git') {
             steps {
                 git branch: 'main', url: 'https://github.com/gubbi555/newproject.git'
             }
         }
-        stage('maven') {
+        stage('deploy') {
             steps {
-                sh 'mvn package'
-            }
-        }
-        stage('docker build') {
-            steps {
-                sh "docker build -t tomcat:latest . "
-                sh "docker run -t -d -p 8091:8090 tomcat:latest sh"
-            }
-        }
-        stage ('login to dockerhub') {
-            steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                sh 'docker tag tomcat:latest prakashmk/tomcat:latest'
-                sh 'docker push prakashmk/tomcat:latest'
+                withKubeConfig(caCertificate: '', 
+                               clusterName: 'arn:aws:eks:ap-south-1:654654360093:cluster/my-cluster', 
+                               contextName: 'arn:aws:eks:ap-south-1:654654360093:cluster/my-cluster', 
+                               credentialsId: 'k8s',  // replace with the correct kubeconfig credentials
+                               namespace: 'default', // or any other namespace you're deploying to
+                               restrictKubeConfigAccess: false, 
+                               serverUrl: 'https://your-kubernetes-api-server-url') {
+                    sh 'kubectl apply -f nginx-deployment.yaml'
+                    sh 'kubectl apply -f service-deployment.yaml'
+                }
             }
         }
     }
