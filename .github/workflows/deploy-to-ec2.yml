@@ -1,0 +1,45 @@
+name: Simple Zip and Deploy to EC2
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      EC2_HOST: 10.0.2.176         # <-- Replace with your EC2 public IP or DNS
+      EC2_USER: ubuntu
+      PEM_FILE: art360.pem         # <-- This file must be committed in repo under a safe folder
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v3
+
+    - name: Zip the current folder
+      run: |
+        TIMESTAMP=$(date +'%Y-%m-%d_%H-%M-%S')
+        ZIP_NAME="verifacto-reporting-api_$TIMESTAMP.zip"
+        echo "ZIP_NAME=$ZIP_NAME" >> $GITHUB_ENV
+        zip -r $ZIP_NAME . -x ".git/*" ".github/*" "*.zip"
+        echo "Created $ZIP_NAME"
+
+    - name: Set SSH permissions
+      run: |
+        mkdir -p ~/.ssh
+        cp ./secrets/$PEM_FILE ~/.ssh/$PEM_FILE  # <-- Make sure your .pem is inside ./secrets/
+        chmod 400 ~/.ssh/$PEM_FILE
+        ssh-keyscan -H $EC2_HOST >> ~/.ssh/known_hosts
+
+    - name: Copy zip to EC2
+      run: |
+        scp -i ~/.ssh/$PEM_FILE $ZIP_NAME $EC2_USER@$EC2_HOST:/home/ubuntu/html/
+
+    - name: SSH and unzip in html directory
+      run: |
+        ssh -i ~/.ssh/$PEM_FILE $EC2_USER@$EC2_HOST << EOF
+          cd /home/ubuntu/html
+          unzip -o $ZIP_NAME -d "deploy_\${ZIP_NAME%.zip}"
+          echo "Unzipped to deploy_\${ZIP_NAME%.zip}"
+        EOF
